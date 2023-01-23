@@ -1,84 +1,39 @@
-template
-========
+addwatermark
+============
 
-By Author <https://example.com>
+By Rémino Rem <https://remino.net>
 
-Short description of app or project.
+Apply a watermark to an image file using ImageMagick.
 
-[Docs](https://example.com/)
-| [Demo](https://example.com/)
-| [Code](https://example.com/)
-| [Download](https://example.com/)
+[Code](https://github.com/remino/addwatermark)
 
-- [About](#about)
-	- [Built With](#built-with)
-- [Getting Started](#getting-started)
-	- [Prerequisites](#prerequisites)
-	- [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
-- [Acknowledgments](#acknowledgments)
 
 
-
-## About
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-Longer description of product.
-
-[Back to top](#template)
-
-
-
-### Built With
-
-- [Node.js](https://nodejs.org/)
-- etc.
-
-[Back to top](#template)
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-### Prerequisites
-
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-    ```sh
-    git clone https://github.com/github_username/repo_name.git
-    ```
-3. Install NPM packages
-    ```sh
-    npm install
-    ```
-4. Enter your API in `config.js`
-    ```js
-    const API_KEY = 'ENTER YOUR API';
-    ```
+Download [release](https://github.com/remino/addwatermark/releases).
 
-[Back to top](#template)
+Or on macOS, install using Homebrew:
+
+```sh
+brew tap remino/remino
+brew install addwatermark
+```
+
+[Back to top](#addwatermark)
 
 
 
 ## Usage
 
-Example usage of app or project.
+See `addwatermark -h`.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-[Back to top](#template)
+[Back to top](#addwatermark)
 
 
 
@@ -95,7 +50,7 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-[Back to top](#template)
+[Back to top](#addwatermark)
 
 
 
@@ -103,7 +58,7 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the ISC License. See `LICENSE.txt` for more information.
 
-[Back to top](#template)
+[Back to top](#addwatermark)
 
 
 
@@ -112,15 +67,4 @@ Distributed under the ISC License. See `LICENSE.txt` for more information.
 Rémino Rem
 https://remino.net/
 
-[Back to top](#template)
-
-
-
-## Acknowledgments
-
-* []()
-* []()
-* []()
-
-[Back to top](#template)
-
+[Back to top](#addwatermark)

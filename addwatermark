@@ -1,0 +1,143 @@
+#!/bin/sh
+# addwatermark
+# Apply a watermark to an image file using ImageMagick.
+# shellcheck disable=SC2317
+
+VERSION='1.0.0'
+
+addwatermark_main() {
+	trap _exit INT TERM
+
+	E_ARGS=16
+	E_MISSING=17
+
+	SCRIPT_INV="$( basename "$0" )"
+	SCRIPT_PATH="$( readlink -f "$0" )"
+	SCRIPT_NAME="$( basename "$SCRIPT_PATH" )"
+
+	LOGO_GRAVITY=SouthWest
+	LOGO_SIZE=12
+
+	while getopts g:hvs: opt
+	do
+		case $opt in
+			g) LOGO_GRAVITY="$OPTARG" ;;
+			h) CMD=help ;;
+			s) LOGO_SIZE="$( echo "$OPTARG" | sed -E 's/%$//' )" ;;
+			v) CMD=version ;;
+			*) _invalid_opt ;;
+		esac
+	done
+
+	shift "$(( OPTIND - 1 ))"
+
+	[ $# -lt 1 ] && CMD=help
+	[ -z "$CMD" ] && CMD=process
+
+	case "$CMD" in
+		help|process|version) "addwatermark_$CMD" "$@" ;;
+		*) _invalid_CMD ;;
+	esac
+
+	_exit
+}
+
+addwatermark_help() {
+cat <<USAGE
+$SCRIPT_NAME $VERSION
+
+USAGE: $SCRIPT_INV [<options>] <watermark> <input> <output>
+
+Apply a watermark to an image file using ImageMagick.
+
+OPTIONS:
+
+	-g        Set the gravity of the watermark. Default: SouthWest.
+	-h        Show this help screen.
+	-s        Set the size percentage of the watermark relative to the widest
+	          dimension of the input image. Default: 20%.
+	-v        Show script name and version number.
+
+USAGE
+}
+
+addwatermark_process() {
+	_cmd_exists magick || _fatal "$E_MISSING" "ImageMagick not installed"
+
+	[ $# -lt 3 ] && _fatal "$E_ARGS" "Missing arguments"
+
+	watermark="$1"
+	input="$2"
+	output="$3"
+
+	[ ! -f "$watermark" ] && _fatal "$E_MISSING" "No file: $watermark"
+	[ ! -f "$input" ] && _fatal "$E_MISSING" "No file: $input"
+
+	_echo "$output"
+
+	magick identify -format '%w %h\n' "$input" | while read -r width height
+	do
+		if [ "$width" -gt "$height" ]
+		then
+			size="$width"
+		else
+			size="$height"
+		fi
+
+		size="$(( size * LOGO_SIZE / 100 ))"
+
+		magick composite \
+			-background none \
+			-gravity "$LOGO_GRAVITY" \
+			-resize "$size" \
+			-dissolve 50 \
+			\( "$watermark" \) \
+			"$input" \
+			"$output" \
+		;
+	done
+}
+
+addwatermark_version() {
+	_echo "$SCRIPT_NAME $VERSION"
+}
+
+_cmd_exists() {
+	command -v "$1" >/dev/null 2>&1
+}
+
+_echo() {
+	echo "$@"
+}
+
+_error() {
+	_echo "$@" >&2
+}
+
+_exit() {
+	exit_code=$?
+	exit $exit_code
+}
+
+_fatal() {
+	exit_code="$1"
+	shift
+	_error "$@"
+	exit "$exit_code"
+}
+
+_invalid_cmd() {
+	_error "Invalid command: $CMD"
+	_echo
+	addwatermark_help
+	exit "$E_ARGS"
+}
+
+_invalid_opt() {
+	_error "Invalid option: $opt"
+	_echo
+	addwatermark_help
+	exit "$E_ARGS"
+}
+
+addwatermark_main "$@"
