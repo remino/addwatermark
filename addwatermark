@@ -17,12 +17,14 @@ addwatermark_main() {
 
 	LOGO_GRAVITY=SouthWest
 	LOGO_SIZE=12
+	IMAGE_RESIZE=
 
-	while getopts g:hvs: opt
+	while getopts g:hvr:s: opt
 	do
 		case $opt in
 			g) LOGO_GRAVITY="$OPTARG" ;;
 			h) CMD=help ;;
+			r) IMAGE_RESIZE="$OPTARG" ;;
 			s) LOGO_SIZE="$( echo "$OPTARG" | sed -E 's/%$//' )" ;;
 			v) CMD=version ;;
 			*) _invalid_opt ;;
@@ -52,9 +54,11 @@ Apply a watermark to an image file using ImageMagick.
 
 OPTIONS:
 
-	-g        Set the gravity of the watermark. Default: SouthWest.
+	-g <val>  Set the gravity of the watermark. Default: SouthWest.
 	-h        Show this help screen.
-	-s        Set the size percentage of the watermark relative to the widest
+	-r <size> Resize the input image to the specified size after applying
+	          the watermark. Value must be in a format understood by ImageMagick.
+	-s <size> Set the size percentage of the watermark relative to the widest
 	          dimension of the input image. Default: 20%.
 	-v        Show script name and version number.
 
@@ -93,6 +97,7 @@ addwatermark_process() {
 			-dissolve 50 \
 			\( "$watermark" \) \
 			"$input" \
+			-resize "$IMAGE_RESIZE" \
 			"$output" \
 		;
 	done
