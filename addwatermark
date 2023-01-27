@@ -3,7 +3,7 @@
 # Apply a watermark to an image file using ImageMagick.
 # shellcheck disable=SC2317
 
-VERSION='1.0.0'
+VERSION='1.1.0'
 
 addwatermark_main() {
 	trap _exit INT TERM
