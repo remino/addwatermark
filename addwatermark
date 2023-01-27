@@ -15,13 +15,15 @@ addwatermark_main() {
 	SCRIPT_PATH="$( readlink -f "$0" )"
 	SCRIPT_NAME="$( basename "$SCRIPT_PATH" )"
 
+	LOGO_OPACITY=0.5
 	LOGO_GRAVITY=SouthWest
-	LOGO_SIZE=12
+	LOGO_SIZE=20
 	IMAGE_RESIZE=
 
-	while getopts g:hvr:s: opt
+	while getopts a:g:hvr:s: opt
 	do
 		case $opt in
+			a) LOGO_OPACITY="$OPTARG" ;;
 			g) LOGO_GRAVITY="$OPTARG" ;;
 			h) CMD=help ;;
 			r) IMAGE_RESIZE="$OPTARG" ;;
@@ -54,10 +56,11 @@ Apply a watermark to an image file using ImageMagick.
 
 OPTIONS:
 
+	-a <val>  Set the alpha of the watermark. Default: 0.5.
 	-g <val>  Set the gravity of the watermark. Default: SouthWest.
 	-h        Show this help screen.
 	-r <size> Resize the input image to the specified size after applying
-	          the watermark. Value must be in a format understood by ImageMagick.
+	          the watermark. Value is in ImageMagick -geometry format.
 	-s <size> Set the size percentage of the watermark relative to the widest
 	          dimension of the input image. Default: 20%.
 	-v        Show script name and version number.
@@ -77,8 +80,6 @@ addwatermark_process() {
 	[ ! -f "$watermark" ] && _fatal "$E_MISSING" "No file: $watermark"
 	[ ! -f "$input" ] && _fatal "$E_MISSING" "No file: $input"
 
-	_echo "$output"
-
 	magick identify -format '%w %h\n' "$input" | while read -r width height
 	do
 		if [ "$width" -gt "$height" ]
@@ -90,21 +91,52 @@ addwatermark_process() {
 
 		size="$(( size * LOGO_SIZE / 100 ))"
 
-		magick composite \
-			-background none \
-			-gravity "$LOGO_GRAVITY" \
-			-resize "$size" \
-			-dissolve 50 \
-			\( "$watermark" \) \
+		_args \
+			"$LOGO_GRAVITY" \
+			"$LOGO_OPACITY" \
+			"$size" \
+			"$watermark" \
 			"$input" \
-			-resize "$IMAGE_RESIZE" \
+			"$IMAGE_RESIZE" \
 			"$output" \
+			| xargs magick \
 		;
+
+		magick identify "$output"
 	done
 }
 
 addwatermark_version() {
 	_echo "$SCRIPT_NAME $VERSION"
+}
+
+_args() {
+gravity="$1"
+opacity="$2"
+size="$3"
+watermark="$4"
+input="$5"
+resize="$6"
+output="$7"
+
+cat << ARGS
+	-background none
+	-gravity '$gravity'
+	(
+		'$input'
+		$( [ -n "$resize" ] && echo "-resize '$resize'" )
+	)
+	(
+		'$watermark'
+		-alpha set
+		-channel alpha
+		-evaluate multiply '$opacity'
+		-resize '$size'
+	)
+	-compose atop
+	-composite
+	'$output'
+ARGS
 }
 
 _cmd_exists() {
